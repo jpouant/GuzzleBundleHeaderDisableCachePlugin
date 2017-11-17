@@ -12,7 +12,7 @@ use Symfony\Component\DependencyInjection\Loader\YamlFileLoader;
 use Symfony\Component\DependencyInjection\Reference;
 use Symfony\Component\HttpKernel\Bundle\Bundle;
 
-class CachePlugin extends Bundle implements EightPointsGuzzleBundlePlugin
+class GuzzleBundleHeaderDisableCachePlugin extends Bundle implements EightPointsGuzzleBundlePlugin
 {
     /**
      * {@inheritdoc}
@@ -28,11 +28,16 @@ class CachePlugin extends Bundle implements EightPointsGuzzleBundlePlugin
     public function addConfiguration(ArrayNodeDefinition $pluginNode)
     {
         $pluginNode
+            ->canBeEnabled()
+            ->validate()
+                ->ifTrue(function (array $config) {
+                    return true === $config['enabled'] && '' === trim($config['header']);
+                })
+            ->thenInvalid('header is required.')
+            ->end()
             ->children()
                 ->scalarNode('header')
                     ->defaultValue(NoCacheSubscriber::DEFAULT_SKIP_CACHE_HEADER)
-                    ->cannotBeEmpty()
-                    ->isRequired()
                 ->end()
             ->end()
         ;
@@ -52,10 +57,12 @@ class CachePlugin extends Bundle implements EightPointsGuzzleBundlePlugin
      */
     public function loadForClient(array $config, ContainerBuilder $container, string $clientName, Definition $handler)
     {
-        dump($config);die;
-        $subscriberDefinition = $container->getDefinition('pichet.cache.no_cache_subscriber');
-        $subscriberDefinition->addMethodCall('addGuzzleClient', [
-            new Reference(sprintf('eight_points_guzzle.client.%s', $clientName))
-        ]);
+        if (true === $config['enabled']) {
+            $subscriberDefinition = $container->getDefinition('pichet.cache.no_cache_subscriber');
+            $subscriberDefinition->addMethodCall('addGuzzleClient', [
+                new Reference(sprintf('eight_points_guzzle.client.%s', $clientName)),
+                $config['header']
+            ]);
+        }
     }
 }
