@@ -1,0 +1,6 @@
+services:
+    neirda24_header_disable_cache_plugin.subscriber:
+        class: 'Neirda24\Bundle\GuzzleBundleHeaderDisableCachePlugin\EventListener\NoCacheSubscriber'
+        public: false
+        tags:
+            - { name: 'kernel.event_subscriber' }
