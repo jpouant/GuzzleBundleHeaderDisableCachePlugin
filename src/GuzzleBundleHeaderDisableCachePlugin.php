@@ -58,7 +58,7 @@ class GuzzleBundleHeaderDisableCachePlugin extends Bundle implements EightPoints
     public function loadForClient(array $config, ContainerBuilder $container, string $clientName, Definition $handler)
     {
         if (true === $config['enabled']) {
-            $subscriberDefinition = $container->getDefinition('pichet.cache.no_cache_subscriber');
+            $subscriberDefinition = $container->getDefinition('neirda24_header_disable_cache_plugin.subscriber');
             $subscriberDefinition->addMethodCall('addGuzzleClient', [
                 new Reference(sprintf('eight_points_guzzle.client.%s', $clientName)),
                 $config['header']
