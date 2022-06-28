@@ -2,7 +2,7 @@
 
 namespace Neirda24\Bundle\GuzzleBundleHeaderDisableCachePlugin;
 
-use EightPoints\Bundle\GuzzleBundle\EightPointsGuzzleBundlePlugin;
+use EightPoints\Bundle\GuzzleBundle\PluginInterface;
 use Neirda24\Bundle\GuzzleBundleHeaderDisableCachePlugin\EventListener\NoCacheSubscriber;
 use Symfony\Component\Config\Definition\Builder\ArrayNodeDefinition;
 use Symfony\Component\Config\FileLocator;
@@ -12,7 +12,7 @@ use Symfony\Component\DependencyInjection\Loader\YamlFileLoader;
 use Symfony\Component\DependencyInjection\Reference;
 use Symfony\Component\HttpKernel\Bundle\Bundle;
 
-class GuzzleBundleHeaderDisableCachePlugin extends Bundle implements EightPointsGuzzleBundlePlugin
+class GuzzleBundleHeaderDisableCachePlugin extends Bundle implements PluginInterface
 {
     /**
      * {@inheritdoc}
@@ -25,7 +25,7 @@ class GuzzleBundleHeaderDisableCachePlugin extends Bundle implements EightPoints
     /**
      * {@inheritdoc}
      */
-    public function addConfiguration(ArrayNodeDefinition $pluginNode)
+    public function addConfiguration(ArrayNodeDefinition $pluginNode): void
     {
         $pluginNode
             ->canBeEnabled()
@@ -46,7 +46,7 @@ class GuzzleBundleHeaderDisableCachePlugin extends Bundle implements EightPoints
     /**
      * {@inheritdoc}
      */
-    public function load(array $configs, ContainerBuilder $container)
+    public function load(array $configs, ContainerBuilder $container): void
     {
         $loader = new YamlFileLoader($container, new FileLocator(__DIR__ . '/Resources/config'));
         $loader->load('subscribers.yml');
@@ -55,7 +55,7 @@ class GuzzleBundleHeaderDisableCachePlugin extends Bundle implements EightPoints
     /**
      * {@inheritdoc}
      */
-    public function loadForClient(array $config, ContainerBuilder $container, string $clientName, Definition $handler)
+    public function loadForClient(array $config, ContainerBuilder $container, string $clientName, Definition $handler): void
     {
         if (true === $config['enabled']) {
             $subscriberDefinition = $container->getDefinition('neirda24_header_disable_cache_plugin.subscriber');
